@@ -45,6 +45,17 @@ abstract class ATracks
     protected $errorCode = 0;
 
     /**
+     * 轨迹最大查询跟踪号个数 1 - 表示官方接口不支持一次性查询多个跟踪号轨迹（那就只能一单一单的查轨迹了）
+     * @var int
+     */
+    protected $maxTracksQueryNumber = 1;
+    /**
+     * 轨迹支持批量查询的多跟踪号默认连接符
+     * @var string
+     */
+    protected $glueFlag = ',';
+
+    /**
      * 重置必要参数
      */
     public function initAttributeParams()
@@ -81,6 +92,23 @@ abstract class ATracks
     }
 
     /**
+     * 每次轨迹最大查询跟踪号个数
+     * @return int
+     */
+    public function getMaxTracksQueryNumber()
+    {
+        return $this->maxTracksQueryNumber;
+    }
+    /**
+     * 轨迹支持批量查询的多跟踪号默认连接符
+     * @return int
+     */
+    public function getGlueFlag()
+    {
+        return $this->glueFlag;
+    }
+
+    /**
      * 解析轨迹
      * @param array $numbersArr 跟踪号
      * @param array $tracksContent 一个订单轨迹信息
@@ -95,7 +123,6 @@ abstract class ATracks
      * @param $params
      * @param string $httpMethod
      * @param array $headerArr
-     * @param bool $returnResponseFailedFlag
      * @return mixed
      */
     abstract public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = []);

@@ -65,15 +65,8 @@ class CreateFinalNo extends AXiaogua
         $response = $this->sendRequest($params);
         if ($response === false){
             $this->errorCode = -1;
-//            Helper::triggerAlarm('小瓜预报接口异常', $this->getErrorMsg(), false, 1);
             return false;
         }
-
-//        $logData = [
-//            'response'=>$response,
-//            'requestParams'=>$params,
-//        ];
-//        Helper::triggerAlarm('小瓜订单预报接口请求响应数据', $logData, false, 300);
 
         $response = json_decode($response, true);
         if (!isset($response['code'])){
@@ -86,12 +79,6 @@ class CreateFinalNo extends AXiaogua
             $this->errorCode = $response['code'];
             //预报请求参数
             $this->errorMsg = '【'.date('Y-m-d H:i:s').'】预报失败原因：'.$response['msg'].' , 【tracking_number='.$params['finalNo'].'】';
-//            $data = [
-//                'code'=>$this->errorCode,
-//                'errorMsg'=>$this->errorMsg,
-//                'requestParams'=>$params,
-//            ];
-//            Helper::triggerAlarm('小瓜订单预报接口请求响应错误代码-'.$response['code'], $data, $sendMailFlag = true, 5);
             return false;
         }
 

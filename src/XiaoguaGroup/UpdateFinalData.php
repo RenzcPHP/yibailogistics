@@ -50,7 +50,7 @@ class UpdateFinalData extends AXiaogua
     {
         $response = $this->sendRequest($params);
         if ($response === false){
-//            Helper::triggerAlarm('小瓜修改快递单号接口异常', $this->getErrorMsg(), false, 1);
+            //$this->getErrorMsg()
             return false;
         }
 
@@ -62,11 +62,6 @@ class UpdateFinalData extends AXiaogua
         if ($response['code'] != 0){
             //预报请求参数
             $this->errorMsg = '【'.date('Y-m-d H:i:s').'】修改快递单号信息失败原因：'.$response['msg'].' , 【tracking_number='.$params['finalNo'].'】';
-//            $data = [
-//                'errorMsg'=>$this->errorMsg,
-//                'requestParams'=>$params,
-//            ];
-//            Helper::triggerAlarm('小瓜修改快递单号信息接口请求响应错误代码-'.$response['code'], $data, $sendMailFlag = true, 24);
             return false;
         }
 

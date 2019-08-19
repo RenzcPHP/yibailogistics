@@ -200,43 +200,39 @@ class Fourseasonsfly extends ATracks
      */
     public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = [])
     {
+        $this->errorCode = 1;
         $httpClient = new Httphelper();
         $response = $httpClient->sendRequest($requestUrl, $params, $httpMethod, $headerArr);
         if($response === false){
-            $this->errorCode = 1;
             $this->errorMsg = $httpClient->getErrorMessage();
             return false;
         }
         if ($httpClient->getHttpStatusCode() != 200){
             //响应http状态码不是200，请求失败
-            $this->errorCode = 1;
             $this->errorMsg = $response;
             return false;
         }
 
-        $response = json_decode($response, true);
-        if (empty($response)){
-            $this->errorCode = 1;
-            $this->errorMsg = '请求数据响应结果为空';
+        $resultArr = json_decode($response, true);
+        if (JSON_ERROR_NONE !== json_last_error()){
+            $this->errorMsg = "json_decode error:".json_last_error_msg()."({$response})";
             return false;
         }
         //0表示成功，其他为错误代码
-        if ($response['code']){
-            $this->errorCode = 1;
+        if (!isset($resultArr['code'])){
             //["code"]=> string(6) "user-3" ["msg"]=> string(20) "test 用户不存在" ["content"]=> array(0) { }
-            $this->errorMsg = '调用接口失败，异常原因：【code='.$response['code'].'】'.$response['msg'];
-            //获取轨迹请求参数
-            $data = [
-                'errorMsg'      => $this->errorMsg,
-                'httpMethod'    => $httpMethod,
-                'requestParams' => $params,
-            ];
-            Helper::triggerAlarm('四季正扬接口请求响应异常代码-'.$response['code'], $data, true, 60);
+            $this->errorMsg = json_encode($resultArr, JSON_UNESCAPED_UNICODE);
+            return false;
+        }
+        if ($resultArr['code']){
+            //["code"]=> string(6) "user-3" ["msg"]=> string(20) "test 用户不存在" ["content"]=> array(0) { }
+            $this->errorMsg = "[{$resultArr['code']}]{$resultArr['msg']}";
             return false;
         }
 
         //返回轨迹数据
-        return $response['content'];
+        $this->errorCode = 0;
+        return $resultArr['content'];
     }
 
     /**

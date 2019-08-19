@@ -30,31 +30,23 @@ class Chukou1 extends ATracks
     protected $accessToken = '';
 
     /**
-     * 轨迹最大查询跟踪号个数
-     * @var int
-     */
-    protected $maxTracksQueryNumber = 20;
-
-    /**
      * 初始化配置
-     * Chukou1 constructor.
-     * @param array $apiConfig
+     * Fourseasonsfly constructor.
+     * @param $apiUrl
+     * @param $accessToken
      */
-    public function __construct(array $apiConfig)
+    public function __construct($apiUrl='', $accessToken='')
     {
-        $this->accessToken = $apiConfig['accessToken'];
-
-        if (!empty($apiConfig['apiUrl'])){
-            $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
-        }else{
-            $this->apiUrl = 'https://openapi.chukou1.cn/v1';
-        }
+        $this->maxTracksQueryNumber = 20;
+        //https://openapi.chukou1.cn/v1/
+        $this->apiUrl = 'https://openapi.chukou1.cn/v1';//rtrim($apiUrl, '/');
+        $this->accessToken = $accessToken;//'MThjMGUyMTktMzU3OC00NzNiLThiNjYtZjgwYWUyZmMxNzBh';//$accessToken;
     }
 
     /**
      * 物流状态
      * @param $key
-            轨迹状态：PickUp、Processing、InTransit、Delivered
+    轨迹状态：PickUp、Processing、InTransit、Delivered
      * @return int|mixed
      */
     public static function getLogisticsStatusByText($key)
@@ -97,7 +89,7 @@ class Chukou1 extends ATracks
     {
         $this->initAttributeParams();
 
-        $numbersArr = explode(',', trim($numbers, ','));
+        $numbersArr = explode($this->glueFlag, trim($numbers, $this->glueFlag));
         if (count($numbersArr) > $this->maxTracksQueryNumber){
             $this->errorCode = 1;
             $this->errorMsg = '最多查询'.$this->maxTracksQueryNumber.'个物流单号';
@@ -195,7 +187,8 @@ class Chukou1 extends ATracks
             "eventState"    => $val['TrackingStatus'],
             "eventZIPCode"  => "",
             "flowType"      => "0",
-            "sort"          => "0"
+            "sort"          => "0",
+            "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
         ];
     }
 
@@ -210,50 +203,33 @@ class Chukou1 extends ATracks
      */
     public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = [])
     {
+        $this->errorCode = 1;
         $httpClient = new Httphelper();
         $response = $httpClient->sendRequest($requestUrl.$requestAction, $params, $httpMethod, $headerArr);
         if($response === false){
-            $this->errorCode = 1;
             $this->errorMsg = $httpClient->getErrorMessage();
-            return false;
-        }
-        if ($httpClient->getHttpStatusCode() != 200){
-            //响应http状态码不是200，请求失败
-            $this->errorCode = 1;
-            $this->errorMsg = $response;
             return false;
         }
 
         $result = json_decode($response, true);
-
-        if (empty($result)){
-            $this->errorCode = 1;
-            Helper::triggerAlarm('出口易请求参数', $params);
-            $this->errorMsg = $response;//'出口易接口请求数据响应为空';
+        if (JSON_ERROR_NONE !== json_last_error()){
+            $this->errorMsg = "json_decode error:".json_last_error_msg()."({$response})";
             return false;
         }
+
         if (isset($result['Errors'])){
             $errorArr = $result['Errors'][0];
-            $this->errorCode = 1;
             //请求异常
             $this->errorMsg = '出口易接口请求异常：【Code='.$errorArr['Code'].'】'.$errorArr['Message'];
             return false;
         }
         if (isset($result['Code'])){
-            $this->errorCode = 1;
             //请求异常
             $this->errorMsg = '出口易接口请求异常：【Code='.$result['Code'].'】'.$result['Message'];
-            //获取轨迹请求参数
-            $data = [
-                'errorMsg'      => $this->errorMsg,
-                'httpMethod'    => $httpMethod,
-                'requestAction' => $requestAction,
-                'requestParams' => $params,
-            ];
-            Helper::triggerAlarm('出口易接口请求响应异常代码-'.$result['Code'], $data, true, 60);
             return false;
         }
 
+        $this->errorCode = 0;
         return $result;
     }
 

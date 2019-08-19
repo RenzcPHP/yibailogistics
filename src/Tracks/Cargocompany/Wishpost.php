@@ -295,47 +295,42 @@ class Wishpost extends ATracks
      */
     public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = [])
     {
+        $this->errorCode = 1;
         $httpClient = new Httphelper();
         $response = $httpClient->sendRequest($requestUrl, $params, $httpMethod, $headerArr);
         if($response === false){
-            $this->errorCode = 1;
             $this->errorMsg = $httpClient->getErrorMessage();
             return false;
         }
         if ($httpClient->getHttpStatusCode() != 200){
             //响应http状态码不是200，请求失败
-            $this->errorCode = 1;
             $this->errorMsg = $response;
             return false;
         }
 
         $xmlObj = simplexml_load_string($response);
         $xmlJsonStr = json_encode($xmlObj);
-        $result = json_decode($xmlJsonStr, true);
-
-        if (empty($result)){
-            $this->errorCode = 1;
-            $this->errorMsg = 'wish邮接口请求数据响应为空';
+        if (JSON_ERROR_NONE !== json_last_error()){
+            $this->errorMsg = "json_encode error:".json_last_error_msg()."({$response})";
             return false;
         }
+        $result = json_decode($xmlJsonStr, true);
+        if (JSON_ERROR_NONE !== json_last_error()){
+            $this->errorMsg = "json_decode error:".json_last_error_msg()."({$xmlJsonStr})";
+            return false;
+        }
+
         if (!isset($result['status'])){
             $this->errorMsg = $response;
             return false;
         }
         if (isset($result['status']) && $result['status'] != 0){
-            $this->errorCode = 1;
             //请求异常
-            $this->errorMsg = 'wish邮接口请求异常：【status='.$result['status'].'】'.$result['error_message'];
-            //获取轨迹请求参数
-            $data = [
-                'errorMsg'      => $this->errorMsg,
-                'httpMethod'    => $httpMethod,
-                'requestParams' => $params,
-            ];
-            //Helper::triggerAlarm('wish邮接口请求响应异常代码-'.$result['status'], $data, true, 60);
+            $this->errorMsg = "[{$result['status']}]{$result['error_message']}";
             return false;
         }
 
+        $this->errorCode = 0;
         return $result;
     }
 }

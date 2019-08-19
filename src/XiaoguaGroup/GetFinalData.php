@@ -44,7 +44,7 @@ class GetFinalData extends AXiaogua
     {
         $response = $this->sendRequest($params);
         if ($response === false){
-//            Helper::triggerAlarm('小瓜获取轨迹接口异常', $this->getErrorMsg(), false, 1);
+            //$this->getErrorMsg()
             return false;
         }
 
@@ -56,12 +56,6 @@ class GetFinalData extends AXiaogua
         //0表示成功，其他为错误代码
         if ($response['code'] != 0){
             $this->errorMsg = '【'.date('Y-m-d H:i:s').'】获取轨迹失败原因：'.$response['msg'].' , 【tracking_number='.$params['finalNo'].'】';
-//            //获取轨迹请求参数
-//            $data = [
-//                'errorMsg'=>$this->errorMsg,
-//                'requestParams'=>$params,
-//            ];
-//            Helper::triggerAlarm('小瓜获取轨迹接口请求响应错误代码-'.$response['code'], $data, $sendMailFlag = true, 6);
             return false;
         }
 

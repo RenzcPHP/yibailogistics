@@ -195,33 +195,31 @@ class Winit extends ATracks
      */
     public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = [])
     {
+        $this->errorCode = 1;
         $httpClient = new Httphelper();
         $response = $httpClient->sendRequest($requestUrl.$requestAction, $params, $httpMethod, $headerArr);
         if($response === false){
-            $this->errorCode = 1;
             $this->errorMsg = $httpClient->getErrorMessage();
             return false;
         }
         if ($httpClient->getHttpStatusCode() != 200){
             //响应http状态码不是200，请求失败
-            $this->errorCode = 1;
             $this->errorMsg = $response;
             return false;
         }
 
         $result = json_decode($response, true);
         if (empty($result)){
-            $this->errorCode = 1;
             $this->errorMsg = $response;
             return false;
         }
         if ($result['code'] != 0){
-            $this->errorCode = 1;
             //请求异常
             $this->errorMsg = '万邑通接口请求异常：【code='.$result['code'].'】'.$result['msg'];
             return false;
         }
 
+        $this->errorCode = 0;
         return $result;
     }
 

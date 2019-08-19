@@ -9,6 +9,8 @@
 namespace Burning\YibaiLogistics\Tracks\Cargocompany;
 
 use Burning\YibaiLogistics\core\Httphelper;
+use Burning\YibaiLogistics\core\XML2Array;
+use Exception;
 
 /**
  * E邮宝官方接口类
@@ -25,25 +27,16 @@ class Ems extends ATracks
     protected $accessToken = '';
 
     /**
-     * 轨迹最大查询跟踪号个数
-     * @var int
-     */
-    protected $maxTracksQueryNumber = 20;
-
-
-    /**
      * 初始化配置
      * Ems constructor.
-     * @param array $apiConfig
+     * @param $apiUrl
+     * @param $accessToken
      */
-    public function __construct(array $apiConfig)
+    public function __construct($apiUrl, $accessToken)
     {
-        if (!empty($apiConfig['apiUrl'])){
-            $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
-        }else{
-            $this->apiUrl = 'http://shipping.ems.com.cn/partner/api/public/p/area/cn/province/list';
-        }
-        $this->accessToken = $apiConfig['accessToken'];
+        $this->maxTracksQueryNumber = 1;
+        $this->apiUrl = 'http://shipping.ems.com.cn/partner/api/public/p/track/query/cn/';
+        $this->accessToken = $accessToken;//'01309bda419d409d995dd7edf63a61a3';
     }
 
     /**
@@ -55,8 +48,8 @@ class Ems extends ATracks
     {
         //0暂无数据;1已签收;2运输途中;-2异常;3到达待取;4投递失败;5运输过久;6退件
         $arr = [
-            1=>0,// Wishpost订单已生成
-            30=>3,// 到达目的国机场
+//            1=>0,// Wishpost订单已生成
+//            30=>3,// 到达目的国机场
         ];
 
         return isset($arr[$key])?$arr[$key]:0;
@@ -70,8 +63,8 @@ class Ems extends ATracks
     public static function getLogisticsStatusMeaning($key)
     {
         $arr = [
-            1=>'Wishpost订单已生成',
-            30=>'到达目的国机场'
+//            1=>'Wishpost订单已生成',
+//            30=>'到达目的国机场'
         ];
 
         $description = isset($arr[$key])?$arr[$key]:'未知状态，请注意';
@@ -86,8 +79,9 @@ class Ems extends ATracks
     public function getTrackingInfo($numbers = '')
     {
         $this->initAttributeParams();
+        $numbers = trim($numbers);
 
-        $numbersArr = explode(',', trim($numbers, ','));
+        $numbersArr = explode($this->glueFlag, trim($numbers, $this->glueFlag));
         if (count($numbersArr) > $this->maxTracksQueryNumber){
             $this->errorCode = 1;
             $this->errorMsg = '最多查询'.$this->maxTracksQueryNumber.'个物流单号';
@@ -97,10 +91,9 @@ class Ems extends ATracks
         $requestUrl = $this->apiUrl;
         $headerArr = $this->requestHeaderArr();
 
-        $result = $this->getResult($requestUrl, '', '', 'GET', $headerArr);
-        if (isset($result['tracks'])){
-            $this->tracksContent = $this->parseTrackingInfo($numbersArr, $result['tracks']);
-        }
+        $result = $this->getResult($requestUrl, '', $numbers, 'GET', $headerArr);
+        $tracksData = !empty($result['traces']['trace'])?$result['traces']['trace']:[];
+        $this->tracksContent = $this->parseTrackingInfo($numbersArr, $tracksData);
 
         return $this->tracksContent;
     }
@@ -113,22 +106,9 @@ class Ems extends ATracks
      */
     public function parseTrackingInfo($numbersArr, $tracksContent = [])
     {
-        if (empty($tracksContent)){
-            return [];
-        }
-
         $allNumbersData = [];
-        $numbersCount = count($numbersArr);
-        //是否是多个跟踪号
-        if ($numbersCount > 1){
-            foreach ($tracksContent as $key=>$oneTracksVal){
-                $numberTracksData = $this->numberTracksData($numbersArr[$key], $oneTracksVal);
-                array_push($allNumbersData, $numberTracksData);
-            }
-        }else{
-            $numberTracksData = $this->numberTracksData($numbersArr[0], $tracksContent);
-            array_push($allNumbersData, $numberTracksData);
-        }
+        $numberTracksData = $this->numberTracksData($numbersArr[0], $tracksContent);
+        array_push($allNumbersData, $numberTracksData);
 
         return $allNumbersData;
     }
@@ -149,31 +129,16 @@ class Ems extends ATracks
             'logisticsStatus'=>0,
             'logisticsState'=>''
         ];
-        if (isset($oneNumberTracksContent['@attributes']['error_message'])){
-            //Invalid Barcode 无效的跟踪号
-            $data['error'] = 1;
-            $data['msg'] = 'E邮宝接口请求异常：'.$oneNumberTracksContent['@attributes']['error_message'];
-            return $data;
-        }
 
         $trackingInfo = [];
-        //轨迹
-        $trackInfo = $oneNumberTracksContent['track'];
-        if (isset($trackInfo['status_number'])){
-            //当前只有一条轨迹，轨迹结构和多条轨迹不同
-            $data['logisticsStatus'] = self::getLogisticsStatusByText($trackInfo['status_number']);
-            $data['logisticsState'] = self::getLogisticsStatusMeaning($trackInfo['status_number']);
-            array_push($trackingInfo, $this->oneTracksData($trackInfo));
-            $data['trackingInfo'] = $trackingInfo;
-            return $data;
-        }
-
-        //多条轨迹
-        $endOne = end($trackInfo);
-        $data['logisticsStatus'] = self::getLogisticsStatusByText($endOne['status_number']);
-        $data['logisticsState'] = self::getLogisticsStatusMeaning($endOne['status_number']);
-        foreach ($trackInfo as $val){
-            array_push($trackingInfo, $this->oneTracksData($val));
+        $trackInfo = $oneNumberTracksContent;
+        if (!empty($trackInfo)){
+            foreach ($trackInfo as $val){
+                array_unshift($trackingInfo, $this->oneTracksData($val));
+            }
+        }else{
+            $data['error'] = 1;
+            $data['msg'] = '没查询到轨迹信息，请确认跟踪号是否存在';
         }
         $data['trackingInfo'] = $trackingInfo;
         return $data;
@@ -186,17 +151,22 @@ class Ems extends ATracks
      */
     protected function oneTracksData($val)
     {
+        /*
+      'acceptTime' => string '2018-11-21 12:55:00' (length=19)
+      'acceptAddress' => string '' (length=0)
+      'remark' => string '妥投，' (length=9)*/
         return $oneTracksData = [
-            "eventTime"     => $val['date'],
+            "eventTime"     => $val['acceptTime'],
             "eventDetail"   => null,
-            "eventThing"    => $val['status_desc'],
-            "place"         => is_string($val['remark'])?$val['remark']:'',//remark为空时会是个空数组，不为空时会是个字符串
+            "eventThing"    => $val['remark'],
+            "place"         => $val['acceptAddress'],
             "eventCity"     => null,
             "eventCountry"  => null,
             "eventState"    => null,
             "eventZIPCode"  => "",
             "flowType"      => "0",
-            "sort"          => "0"
+            "sort"          => "0",
+            "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
         ];
     }
 
@@ -208,49 +178,34 @@ class Ems extends ATracks
      * @param string $httpMethod
      * @param array $headerArr
      * @return bool|mixed|string
+     * @return array|bool|mixed
      */
     public function getResult($requestUrl, $requestAction, $params, $httpMethod = 'GET', $headerArr = [])
     {
+        $this->errorCode = 1;
         $httpClient = new Httphelper();
         $response = $httpClient->sendRequest($requestUrl, $params, $httpMethod, $headerArr);
-        if($response === false){
-            $this->errorCode = 1;
-            $this->errorMsg = $httpClient->getErrorMessage();
+        try{
+            if($response === false){
+                throw new Exception($httpClient->getErrorMessage());
+            }
+            if (empty($response)){
+                throw new Exception('E邮宝接口请求数据响应为空');
+            }
+            if ($response == 'null'){
+                throw new Exception("请求E邮宝接口响应数据为：{$response}，排查系还没出货");
+            }
+            $resultArr = XML2Array::createArray($response);
+            if (empty($resultArr)){
+                throw new Exception($response);
+            }
+
+            $this->errorCode = 0;
+            return $resultArr;
+        }catch (Exception $exception){
+            $this->errorMsg = $exception->getMessage();
             return false;
         }
-        if ($httpClient->getHttpStatusCode() != 200){
-            //响应http状态码不是200，请求失败
-            $this->errorCode = 1;
-            $this->errorMsg = $response;
-            return false;
-        }
-
-        echo $response;die;
-
-        $xmlObj = simplexml_load_string($response);
-        $xmlJsonStr = json_encode($xmlObj);
-        $result = json_decode($xmlJsonStr, true);
-
-        if (empty($result)){
-            $this->errorCode = 1;
-            $this->errorMsg = 'E邮宝接口请求数据响应为空';
-            return false;
-        }
-        if ($result['status'] != 0){
-            $this->errorCode = 1;
-            //请求异常
-            $this->errorMsg = 'E邮宝接口请求异常：【status='.$result['status'].'】'.$result['error_message'];
-            //获取轨迹请求参数
-            $data = [
-                'errorMsg'      => $this->errorMsg,
-                'httpMethod'    => $httpMethod,
-                'requestParams' => $params,
-            ];
-            Helper::triggerAlarm('E邮宝接口请求响应异常代码-'.$result['status'], $data, true, 60);
-            return false;
-        }
-
-        return $result;
     }
 
     /**

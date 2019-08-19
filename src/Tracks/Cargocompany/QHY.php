@@ -2,23 +2,21 @@
 /**
  * Created by PhpStorm.
  * User: Administrator
- * Date: 2018/8/16
- * Time: 17:35
+ * Date: 2019/8/19
+ * Time: 12:14
  */
 
 namespace Burning\YibaiLogistics\Tracks\Cargocompany;
 
-
 use Burning\YibaiLogistics\core\Httphelper;
 
 /**
- * 纬狮物流官方接口类
+ * 全和悦物流官方接口类
  * 官方api文档：http://ec.wiki.eccang.com/docs/show/819
- *
- * Class Weis
+ * Class QHY
  * @package Burning\YibaiLogistics\Tracks\Cargocompany
  */
-class Weis extends ATracks
+class QHY extends ATracks
 {
     /**
      * 用户
@@ -56,15 +54,15 @@ class Weis extends ATracks
      */
     public function __construct(array $apiConfig)
     {
-        $this->accountName = $apiConfig['accountName'];//陈蒙
-        $this->clientId = $apiConfig['clientId'];//00043
-        $this->appToken = $apiConfig['appToken'];//2b888e31f9af407b5469c0b5aa1e0983
-        $this->appKey = $apiConfig['appKey'];//2b888e31f9af407b5469c0b5aa1e098310d4510a55122c972aec496c8f94561b
+        $this->accountName = $apiConfig['accountName'];//谭美清
+        $this->clientId = $apiConfig['clientId'];//00347
+        $this->appToken = $apiConfig['appToken'];//0d18acefd174e777742c6bbc5b6c8a1a
+        $this->appKey = $apiConfig['appKey'];//0d18acefd174e777742c6bbc5b6c8a1abeea7bc9cb68cf977b82cb2bb4dc768d
 
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
         }else{
-            $this->apiUrl = 'http://120.25.2.76:8080/default/svc/web-service';
+            $this->apiUrl = 'http://tms.alljoylogistics.com/default/svc/web-service';
         }
     }
 
