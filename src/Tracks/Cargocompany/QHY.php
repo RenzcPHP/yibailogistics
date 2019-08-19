@@ -54,10 +54,10 @@ class QHY extends ATracks
      */
     public function __construct(array $apiConfig)
     {
-        $this->accountName = $apiConfig['accountName'];//谭美清
-        $this->clientId = $apiConfig['clientId'];//00347
-        $this->appToken = $apiConfig['appToken'];//0d18acefd174e777742c6bbc5b6c8a1a
-        $this->appKey = $apiConfig['appKey'];//0d18acefd174e777742c6bbc5b6c8a1abeea7bc9cb68cf977b82cb2bb4dc768d
+        $this->accountName = $apiConfig['accountName'];
+        $this->clientId = $apiConfig['clientId'];
+        $this->appToken = $apiConfig['appToken'];
+        $this->appKey = $apiConfig['appKey'];
 
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
@@ -186,7 +186,8 @@ class QHY extends ATracks
                 "eventState"=>null,
                 "eventZIPCode"=>"",
                 "flowType"=>"0",
-                "sort"=>"0"
+                "sort"=>"0",
+                "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
             ];
 
             array_unshift($trackingInfo, $oneTracksData);

@@ -53,10 +53,10 @@ class BXD extends ATracks
      */
     public function __construct(array $apiConfig)
     {
-        $this->accountName = $apiConfig['accountName'];//谭美清
-        $this->clientId = $apiConfig['clientId'];//00246
-        $this->appToken = $apiConfig['appToken'];//2a8ba57344aab3eadbd27c08e5e3d35d
-        $this->appKey = $apiConfig['appKey'];//2a8ba57344aab3eadbd27c08e5e3d35d2ddb5bbf52276b54c8bd3fc648629df6
+        $this->accountName = $apiConfig['accountName'];
+        $this->clientId = $apiConfig['clientId'];
+        $this->appToken = $apiConfig['appToken'];
+        $this->appKey = $apiConfig['appKey'];
 
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
@@ -185,7 +185,8 @@ class BXD extends ATracks
                 "eventState"=>null,
                 "eventZIPCode"=>"",
                 "flowType"=>"0",
-                "sort"=>"0"
+                "sort"=>"0",
+                "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
             ];
 
             array_unshift($trackingInfo, $oneTracksData);

@@ -56,10 +56,10 @@ class Weis extends ATracks
      */
     public function __construct(array $apiConfig)
     {
-        $this->accountName = $apiConfig['accountName'];//陈蒙
-        $this->clientId = $apiConfig['clientId'];//00043
-        $this->appToken = $apiConfig['appToken'];//2b888e31f9af407b5469c0b5aa1e0983
-        $this->appKey = $apiConfig['appKey'];//2b888e31f9af407b5469c0b5aa1e098310d4510a55122c972aec496c8f94561b
+        $this->accountName = $apiConfig['accountName'];
+        $this->clientId = $apiConfig['clientId'];
+        $this->appToken = $apiConfig['appToken'];
+        $this->appKey = $apiConfig['appKey'];
 
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
@@ -188,7 +188,8 @@ class Weis extends ATracks
                 "eventState"=>null,
                 "eventZIPCode"=>"",
                 "flowType"=>"0",
-                "sort"=>"0"
+                "sort"=>"0",
+                "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
             ];
 
             array_unshift($trackingInfo, $oneTracksData);

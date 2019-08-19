@@ -280,7 +280,8 @@ class Wishpost extends ATracks
             "eventState"    => null,
             "eventZIPCode"  => "",
             "flowType"      => "0",
-            "sort"          => "0"
+            "sort"          => "0",
+            "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
         ];
     }
 

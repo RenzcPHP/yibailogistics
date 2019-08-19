@@ -54,10 +54,10 @@ class SHang extends ATracks
      */
     public function __construct(array $apiConfig)
     {
-        $this->accountName = $apiConfig['accountName'];//深圳市易佰网络科技有限公司
-        $this->clientId = $apiConfig['clientId'];//SHDS-YBWL
-        $this->appToken = $apiConfig['appToken'];//49f07eaab7d614e876e1e51931562477
-        $this->appKey = $apiConfig['appKey'];//49f07eaab7d614e876e1e519315624778df93af7e58ad0c6caf8fcb1cca2a7dd
+        $this->accountName = $apiConfig['accountName'];
+        $this->clientId = $apiConfig['clientId'];
+        $this->appToken = $apiConfig['appToken'];
+        $this->appKey = $apiConfig['appKey'];
 
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
@@ -186,7 +186,8 @@ class SHang extends ATracks
                 "eventState"=>null,
                 "eventZIPCode"=>"",
                 "flowType"=>"0",
-                "sort"=>"0"
+                "sort"=>"0",
+                "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
             ];
 
             array_unshift($trackingInfo, $oneTracksData);
