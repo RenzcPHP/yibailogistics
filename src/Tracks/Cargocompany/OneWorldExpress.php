@@ -101,8 +101,8 @@ class OneWorldExpress extends ATracks
         //轨迹
         if (isset($oneNumberTracksContent['TrackPoints'])){
             $trackInfo = $oneNumberTracksContent['TrackPoints'];
-            $data['logisticsStatus'] = self::getLogisticsStatusByText($oneNumberTracksContent['TrackingStatus']);
-            $data['logisticsState'] = self::getLogisticsStatusMeaning($oneNumberTracksContent['TrackingStatus']);
+            $data['logisticsStatus'] = self::getLogisticsStatusByText($oneNumberTracksContent['Status']);
+            $data['logisticsState'] = self::getLogisticsStatusMeaning($oneNumberTracksContent['Status']);
             foreach ($trackInfo as $val){
                 array_unshift($trackingInfo, $this->oneTracksData($val));
             }
