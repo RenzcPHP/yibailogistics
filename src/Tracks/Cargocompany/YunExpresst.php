@@ -65,6 +65,9 @@ class YunExpresst extends ATracks
         $requestUrl = $this->apiUrl;
         $requestAction = "/WayBill/GetTrackingNumber?trackingNumber={$numbersArr[0]}";
         $result = $this->getResult($requestUrl, $requestAction, '', 'GET');
+        if ($result === false){
+            return false;
+        }
         $this->tracksContent = $this->parseTrackingInfo($numbersArr, $result);
 
         return $this->tracksContent;

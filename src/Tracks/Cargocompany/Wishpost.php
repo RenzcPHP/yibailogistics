@@ -273,7 +273,8 @@ class Wishpost extends ATracks
         return $oneTracksData = [
             "eventTime"     => $val['date'],
             "eventDetail"   => null,
-            "eventThing"    => $val['status_desc'],
+//            "eventThing"    => $val['status_desc'],
+            "eventThing"    => is_string($val['status_desc'])?$val['status_desc']:json_encode($val['status_desc'], JSON_UNESCAPED_UNICODE),
             "place"         => is_string($val['remark'])?$val['remark']:'',//remark为空时会是个空数组，不为空时会是个字符串
             "eventCity"     => null,
             "eventCountry"  => null,

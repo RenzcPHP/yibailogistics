@@ -120,7 +120,7 @@ class D4px extends ATracks
         $trackInfo = $oneNumberTracksContent;
         if (!empty($trackInfo)){
             foreach ($trackInfo as $val){
-                array_unshift($trackingInfo, $this->oneTracksData($val));
+                array_push($trackingInfo, $this->oneTracksData($val));
             }
         }else{
             $data['error'] = 1;

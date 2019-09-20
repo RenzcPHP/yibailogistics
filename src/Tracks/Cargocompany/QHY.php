@@ -190,7 +190,7 @@ class QHY extends ATracks
                 "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
             ];
 
-            array_unshift($trackingInfo, $oneTracksData);
+            array_push($trackingInfo, $oneTracksData);
         }
         $data['trackingInfo'] = $trackingInfo;
 

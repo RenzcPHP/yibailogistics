@@ -163,7 +163,7 @@ class Chukou1 extends ATracks
             $data['logisticsStatus'] = self::getLogisticsStatusByText($endOne['TrackingStatus']);
             $data['logisticsState'] = self::getLogisticsStatusMeaning($endOne['TrackingStatus']);
             foreach ($trackInfo as $val){
-                array_unshift($trackingInfo, $this->oneTracksData($val));
+                array_push($trackingInfo, $this->oneTracksData($val));
             }
         }
         $data['trackingInfo'] = $trackingInfo;
