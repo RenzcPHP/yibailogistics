@@ -64,7 +64,8 @@ class Weis extends ATracks
         if (!empty($apiConfig['apiUrl'])){
             $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
         }else{
-            $this->apiUrl = 'http://120.25.2.76:8080/default/svc/web-service';
+            $this->apiUrl = 'http://track.360lion.com:8080/toms/service';
+//            $this->apiUrl = 'http://120.25.2.76:8080/default/svc/web-service';
         }
     }
 
@@ -214,6 +215,10 @@ class Weis extends ATracks
         $postData = $this->assemblePostData($requestAction, $params);
 
         $httpClient = new Httphelper();
+        //新接口用json格式请求数据
+        $headerArr = [
+            "Content-Type: application/json"
+        ];
         $response = $httpClient->sendRequest($requestUrl, $postData, $httpMethod, $headerArr);
         if($response === false){
             $this->errorMsg = $httpClient->getErrorMessage();
@@ -225,17 +230,11 @@ class Weis extends ATracks
             return false;
         }
 
-        $responseData = $this->parseSoapResponseData($response);
-        if (empty($responseData)){
-            //请求响应数据为空
-            $this->errorMsg = $response;
-            return false;
-        }
-
+//        $responseData = $this->parseSoapResponseData($response);
         //请求正常，解析
-        $responseResult = json_decode($responseData, true);
+        $responseResult = json_decode($response, true);
         if (JSON_ERROR_NONE !== json_last_error()){
-            $this->errorMsg = "json_decode error:".json_last_error_msg()."({$responseData})";
+            $this->errorMsg = "json_decode error:".json_last_error_msg()."({$response})";
             return false;
         }
         if (!isset($responseResult['ask'])){
@@ -260,19 +259,28 @@ class Weis extends ATracks
      */
     protected function assemblePostData($service, $postData)
     {
-        $paramsJson = json_encode($postData);
-        $xmlArray = '<?xml version="1.0" encoding="UTF-8"?>';
-        $xmlArray.= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.example.org/Ec/">';
-        $xmlArray.= "<SOAP-ENV:Body>";
-        $xmlArray.= "<ns1:callService>";
-        $xmlArray.= "<paramsJson>{$paramsJson}</paramsJson>";
-        $xmlArray.= "<appToken>{$this->appToken}</appToken>";
-        $xmlArray.= "<appKey>{$this->appKey}</appKey>";
-        $xmlArray.= "<service>{$service}</service>";
-        $xmlArray.= "</ns1:callService>";
-        $xmlArray.= "</SOAP-ENV:Body>";
-        $xmlArray.= "</SOAP-ENV:Envelope>";
-        return $xmlArray;
+        $newParams = [
+            'paramsJson'=>$postData,
+            'appToken'=>$this->appToken,
+            'service'=>$service,
+            'customerCode'=>'00043',
+            'appKey'=>$this->appKey,
+        ];
+        return json_encode($newParams);
+
+//        $paramsJson = json_encode($postData);
+/*        $xmlArray = '<?xml version="1.0" encoding="UTF-8"?>';*/
+//        $xmlArray.= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.example.org/Ec/">';
+//        $xmlArray.= "<SOAP-ENV:Body>";
+//        $xmlArray.= "<ns1:callService>";
+//        $xmlArray.= "<paramsJson>{$paramsJson}</paramsJson>";
+//        $xmlArray.= "<appToken>{$this->appToken}</appToken>";
+//        $xmlArray.= "<appKey>{$this->appKey}</appKey>";
+//        $xmlArray.= "<service>{$service}</service>";
+//        $xmlArray.= "</ns1:callService>";
+//        $xmlArray.= "</SOAP-ENV:Body>";
+//        $xmlArray.= "</SOAP-ENV:Envelope>";
+//        return $xmlArray;
     }
 
     /**
