@@ -170,10 +170,15 @@ class Weis extends ATracks
             'error'=>0,
             'msg'=>'',
             'trackingNumber'=>($oneNumberTracksContent['Code']==$trackingNumber)?$trackingNumber:'',
-            'trackingInfo'=>'',
+            'trackingInfo'=>[],
             'logisticsStatus'=>0,
             'logisticsState'=>''
         ];
+        if (empty($oneNumberTracksContent) || empty($oneNumberTracksContent['Detail'])){
+            $data['error'] = 1;
+            $data['msg'] = '纬狮物流没有返回轨迹，请确认单号是否有误？';
+            return $data;
+        }
 
         $data['logisticsStatus'] = self::getLogisticsStatusByText($oneNumberTracksContent['Status']);
         $data['logisticsState'] = self::getLogisticsStatusMeaning($oneNumberTracksContent['Status']);
@@ -269,7 +274,7 @@ class Weis extends ATracks
         return json_encode($newParams);
 
 //        $paramsJson = json_encode($postData);
-/*        $xmlArray = '<?xml version="1.0" encoding="UTF-8"?>';*/
+        /*        $xmlArray = '<?xml version="1.0" encoding="UTF-8"?>';*/
 //        $xmlArray.= '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.example.org/Ec/">';
 //        $xmlArray.= "<SOAP-ENV:Body>";
 //        $xmlArray.= "<ns1:callService>";
