@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d4dd4b02-123e-4700-ab40-9c4ace715990" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Tracks/Cargocompany/Weis.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracks/Cargocompany/Weis.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tracks/Cargocompany/Shopee.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracks/Cargocompany/Shopee.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,24 +16,6 @@
     <execution>
       <executable />
     </execution>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>getErrorMessage</find>
-      <find>ci</find>
-      <find>assembleTrackingsPostData</find>
-      <find>$tracksContent</find>
-      <find>logisticsStatus</find>
-      <find>logisticsState</find>
-      <find>InTransit</find>
-      <find>DeliveryFailed</find>
-      <find>token_2</find>
-      <find>$paramsData</find>
-      <find>$key</find>
-    </findStrings>
-    <dirStrings>
-      <dir>D:\phpStudy\PHPTutorial\WWW\git_project\yibailogistics\src\Tracks\Cargocompany</dir>
-    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -88,7 +70,10 @@
       <workItem from="1568978955509" duration="6517000" />
       <workItem from="1574173030881" duration="1172000" />
       <workItem from="1574252874543" duration="3146000" />
-      <workItem from="1574325226342" duration="610000" />
+      <workItem from="1574325226342" duration="1873000" />
+      <workItem from="1575100966719" duration="1495000" />
+      <workItem from="1575359983121" duration="6684000" />
+      <workItem from="1575425992534" duration="408000" />
     </task>
     <servers />
   </component>

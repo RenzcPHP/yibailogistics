@@ -21,6 +21,11 @@ class Shopee extends ATracks
     public $partnerId;    //合作者id
     public $secretKey;    //秘钥
     /**
+     * 抓取轨迹所用平台订单号
+     * @var null
+     */
+    protected $ordersn = null;
+    /**
      * 实例化
      * Shopee constructor.
      * @param array $apiConfig
@@ -31,6 +36,27 @@ class Shopee extends ATracks
         $this->partnerId = (int) $apiConfig['partnerId'];
         $this->secretKey = $apiConfig['secretKey'];
         $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
+        $this->ordersn = $this->aquireOrderSn($apiConfig['ordersn']);
+    }
+
+    /**
+     * 获取平台订单号
+     * @param $platformOrderId
+     * @return mixed
+     */
+    private function aquireOrderSn($platformOrderId)
+    {
+        if(strpos($platformOrderId,'_')){
+            //对拆分订单处理
+            $platformOrderIdArr = explode('_', $platformOrderId);
+            $platformOrderId = $platformOrderIdArr[0];
+        }elseif(strpos($platformOrderId,'-')){
+            //补寄
+            $platformOrderIdArr = explode('-', $platformOrderId);
+            $platformOrderId = $platformOrderIdArr[0];
+        }
+
+        return $platformOrderId;
     }
 
     /**
@@ -43,8 +69,8 @@ class Shopee extends ATracks
         $this->initAttributeParams();
 
         $params = [
-            'ordersn'=>$numbers,
-            //'tracking_number'=>$trackingNumber
+            'ordersn'=>$this->ordersn,
+            'tracking_number'=>$numbers
         ];
         $result = $this->getResult($this->apiUrl, 'logistics/tracking', $params, $httpMethod = 'POST', $headerArr = []);
         return $this->parseTrackingInfo($numbers, $result);
