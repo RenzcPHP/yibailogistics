@@ -29,7 +29,7 @@ class Aliexpress extends ATracks
     public function __construct(array $apiConfig)
     {
         $this->account_id = (int) $apiConfig['account_id'];
-        $this->logisticsNo = (int) $apiConfig['logisticsNo'];
+        $this->logisticsNo = $apiConfig['logisticsNo'];
         $this->platform_order_id = $apiConfig['platform_order_id'];
         $this->serviceName = $apiConfig['serviceName'];
         $this->ship_country = $apiConfig['ship_country'];
