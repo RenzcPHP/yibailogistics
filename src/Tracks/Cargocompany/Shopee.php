@@ -279,9 +279,6 @@ class Shopee extends ATracks
 
     /**
      * 描述:shopEE官方接口错误描述
-     * @author 钟贵廷
-     * @WeChat gt845272922
-     * @qq 845272922
      * @param $errorKey
      * @return string
      */
