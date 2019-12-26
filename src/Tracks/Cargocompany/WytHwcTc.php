@@ -93,6 +93,11 @@ class WytHwcTc extends ATracks
             $data['error'] = 1;
             $data['msg'] = $this->errorMsg;
             return $data;
+        }elseif(!isset($oneNumberTracksContent['trackingList']) || empty($oneNumberTracksContent['trackingList'])){
+            $this->errorMsg = "获取轨迹失败：".json_encode($oneNumberTracksContent);
+            $data['error'] = 1;
+            $data['msg'] = $this->errorMsg;
+            return $data;
         }
 
         $trackingInfo = [];

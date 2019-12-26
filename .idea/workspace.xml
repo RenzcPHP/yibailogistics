@@ -3,6 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="d4dd4b02-123e-4700-ab40-9c4ace715990" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tracks/Cargocompany/Aliexpress.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracks/Cargocompany/Aliexpress.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tracks/Cargocompany/Shopee.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracks/Cargocompany/Shopee.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tracks/Cargocompany/WytHwcTc.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Tracks/Cargocompany/WytHwcTc.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,6 +28,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -76,7 +80,10 @@
       <workItem from="1575554908297" duration="4671000" />
       <workItem from="1575622163513" duration="1288000" />
       <workItem from="1575959624330" duration="2651000" />
-      <workItem from="1576760119110" duration="3964000" />
+      <workItem from="1576760119110" duration="4390000" />
+      <workItem from="1577156543590" duration="553000" />
+      <workItem from="1577276414184" duration="1961000" />
+      <workItem from="1577365397967" duration="2976000" />
     </task>
     <servers />
   </component>

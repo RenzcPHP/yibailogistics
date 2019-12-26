@@ -113,7 +113,7 @@ class Shopee extends ATracks
             'error'=>0,
             'msg'=>'',
             'trackingNumber'=>$oneNumberTracksContent['tracking_number'],
-            'trackingInfo'=>'',
+            'trackingInfo'=>[],
             'logisticsStatus'=>0,
             'logisticsState'=>''
         ];
@@ -121,6 +121,11 @@ class Shopee extends ATracks
         $trackingInfo = [];
         //轨迹
         $trackInfo = $oneNumberTracksContent['tracking_info'];
+        if (empty($trackInfo)){
+            $data['error'] = 1;
+            $data['msg'] = "Shopee返回轨迹为空（暂无轨迹）";
+            return $data;
+        }
         $endOne = $trackInfo[0];//end($trackInfo);
         //The 3PL logistics status for the order. Applicable values: See Data Definition - TrackingLogisticsStatus.
         $data['logisticsStatus'] = self::getLogisticsStatusByText($endOne['status']);

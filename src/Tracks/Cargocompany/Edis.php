@@ -1,40 +1,36 @@
 <?php
 
-
 namespace Burning\YibaiLogistics\Tracks\Cargocompany;
 
 use Burning\YibaiLogistics\core\Httphelper;
 
 /**
- * 速卖通轨迹
- * 接口文档：https://developers.aliexpress.com/doc.htm?docId=30120&docType=2
- * 对接接口：aliexpress.logistics.redefining.querytrackingresult( 查询物流追踪信息 )
- * Class Aliexpress
+ * speedpark eBay线上物流
+ * 接口文档：https://open.edisebay.com/open/api-document-detail
+ * 对接接口：GetTrackingDetail (获取包裹物流跟踪信息)
+ * Class Edis
  * @package Burning\YibaiLogistics\Tracks\Cargocompany
  */
-class Aliexpress extends ATracks
+class Edis extends ATracks
 {
     protected $apiUrl;
-    public $account_id;
-    public $logisticsNo;
-    public $platform_order_id;
     protected $platform_code = null;
+    public $account_id;
+    public $tracking_number;
+    public $platform_order_id;
     public $serviceName;    //carrier_key 平台对应的物流CODE
     public $ship_country;
 
     /**
      * 实例化
-     * Aliexpress constructor.
+     * Edis constructor.
      * @param array $apiConfig
      */
     public function __construct(array $apiConfig)
     {
         $this->platform_code = $apiConfig['platform_code'];
-        $this->account_id = (int) $apiConfig['account_id'];
-        $this->logisticsNo = $apiConfig['logisticsNo'];
-        $this->platform_order_id = $apiConfig['platform_order_id'];
-        $this->serviceName = $apiConfig['serviceName'];
-        $this->ship_country = $apiConfig['ship_country'];
+        $this->account_id = (int)$apiConfig['account_id'];
+        $this->tracking_number = trim($apiConfig['tracking_number']);
         $this->apiUrl = rtrim($apiConfig['apiUrl'], '/');
     }
 
@@ -49,12 +45,9 @@ class Aliexpress extends ATracks
 
         //测试数据
         $params = [
-            'platform_code'=>$this->platform_code,
-            'account_id'=>$this->account_id,
-            'logisticsNo'=>$this->logisticsNo,
-            'platform_order_id'=>$this->platform_order_id,
-            'serviceName'=>$this->serviceName,//'YANWEN_JYT',
-            'ship_country'=>$this->ship_country //'DE',
+            'platform_code' => $this->platform_code,
+            'account_id' => $this->account_id,
+            'tracking_number' => $this->tracking_number,
         ];
         $result = $this->getResult($this->apiUrl, '', $params, $httpMethod = 'POST', $headerArr = []);
         return $this->parseTrackingInfo($trackingNumber, $result);
@@ -84,14 +77,14 @@ class Aliexpress extends ATracks
     protected function numberTracksData($trackingNumber, $oneNumberTracksContent = [])
     {
         $data = [
-            'error'=>0,
-            'msg'=>'',
-            'trackingNumber'=>$trackingNumber,
-            'trackingInfo'=>'',
-            'logisticsStatus'=>0,
-            'logisticsState'=>''
+            'error' => 0,
+            'msg' => '',
+            'trackingNumber' => $trackingNumber,
+            'trackingInfo' => '',
+            'logisticsStatus' => 0,
+            'logisticsState' => ''
         ];
-        if ($oneNumberTracksContent === false){
+        if ($oneNumberTracksContent === false) {
             $data['error'] = 1;
             $data['msg'] = $this->errorMsg;
             return $data;
@@ -99,8 +92,8 @@ class Aliexpress extends ATracks
 
         $trackingInfo = [];
         //轨迹
-        $trackInfo = $oneNumberTracksContent['details']['details'];
-        foreach ($trackInfo as $val){
+        $trackInfo = $oneNumberTracksContent;
+        foreach ($trackInfo as $val) {
             array_push($trackingInfo, $this->oneTracksData($val));
         }
         $data['trackingInfo'] = $trackingInfo;
@@ -115,21 +108,27 @@ class Aliexpress extends ATracks
     protected function oneTracksData($val)
     {
         /*
-address: "",
-event_date: "2019-11-30 03:42:00",
-event_desc: "【8】Arrive at destination country"*/
+                "status":"DELIVERED",
+                "descriptionZh":"Package delivered by post office",
+                "descriptionEn":"Package delivered by post office",
+                "eventTime":"2019-11-15T15:14:00.000+0800",
+                "country":"US",
+                "province":"NC",
+                "city":"RALEIGH",
+                "district":"",
+                "eventPostalCode":"27604"*/
         return $oneTracksData = [
-            "eventTime"     => $val['event_date'],
-            "eventDetail"   => '',
-            "eventThing"    => $val['event_desc'],
-            "place"         => $val['address'],
-            "eventCity"     => null,
-            "eventCountry"  => null,
-            "eventState"    => '',
-            "eventZIPCode"  => "",
-            "flowType"      => "0",
-            "sort"          => "0",
-            "originTrackData"=>json_encode($val, JSON_UNESCAPED_UNICODE)
+            "eventTime" => date('Y-m-d H:i:s', strtotime($val['eventTime'])),
+            "eventDetail" => '',
+            "eventThing" => $val['descriptionZh']."({$val['descriptionEn']})",
+            "place" => '',
+            "eventCity" => $val['city'],
+            "eventCountry" => $val['country'],
+            "eventState" => $val['province'],
+            "eventZIPCode" => $val['eventPostalCode'],
+            "flowType" => "0",
+            "sort" => "0",
+            "originTrackData" => json_encode($val, JSON_UNESCAPED_UNICODE)
         ];
     }
 
@@ -148,36 +147,43 @@ event_desc: "【8】Arrive at destination country"*/
         //新接口用json格式请求数据
         $headerArr = ["Content-Type: application/json"];
         $response = $httpClient->sendRequest($requestUrl, json_encode($params), $httpMethod, $headerArr);
-        if($response === false){
+        if ($response === false) {
             $this->errorMsg = $httpClient->getErrorMessage();
             return false;
         }
 
-        $result = json_decode($response,true);
+        $result = json_decode($response, true);
         if (JSON_ERROR_NONE !== json_last_error()) {
-            $this->errorMsg = 'json_decode error: ' . json_last_error_msg()."({$response})";
+            $this->errorMsg = 'json_decode error: ' . json_last_error_msg() . "({$response})";
             return false;
         }
-        if (!isset($result['ack'])){
+        if (!isset($result['ack'])) {
             $this->errorMsg = json_encode($result, JSON_UNESCAPED_UNICODE);
             return false;
-        }elseif($result['ack'] == 0){
+        } elseif ($result['ack'] == 0) {
             $this->errorMsg = $result['errorMsg'];
-        }elseif(!empty($result['data'])){
+        } elseif (!empty($result['data'])) {
             /*{
-                ack: 1,
-                data: {
-                    details: {},
-                    official_website: "http://intmail.11185.cn/",
-                    result_success: true,
-                    request_id: "slvafg1s01xt"
-                },
-                errorMsg: ""
-            }*/
-            if ($result['data']['result_success'] === true){
-                return $result['data'];
-            }else{
+    "ack":1,
+    "data":{
+        "status":{
+            "resultCode":200,
+            "message":"success",
+            "timestamp":1577364892128,
+            "messageId":"3e416c75-7346-41f7-959c-de51cf0c81d9"
+        },
+        "data":Array[14]
+    },
+    "errorMsg":""
+}*/
+            if (!isset($result['data']['status']['resultCode'])){
                 $this->errorMsg = json_encode($result, JSON_UNESCAPED_UNICODE);
+                return false;
+            }
+            if ($result['data']['status']['resultCode'] == 200) {
+                return $result['data']['data'];
+            } else {
+                $this->errorMsg = "[{$result['data']['status']['resultCode']}]{$result['data']['status']['message']}";
                 return false;
             }
         }
